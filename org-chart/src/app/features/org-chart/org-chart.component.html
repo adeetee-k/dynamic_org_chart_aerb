@@ -1,0 +1,57 @@
+<div class="org-container">
+    <aside class="legend" [class.open]="legendOpen()">
+        <button class="legend-toggle" type="button" (click)="toggleLegend()">{{ legendOpen() ? 'Hide' : 'Show' }} Legend</button>
+        <ul *ngIf="legendOpen()">
+            <li>DTS&RD - Directorate of Technical Support & Regulatory Documents</li>
+            <li>DRO - Directorate of Regulatory Operations</li>
+            <li>DRA&ER - Directorate of Resource, Administration & External Relations</li>
+            <li>NSAD - Nuclear Safety Analysis Division</li>
+            <li>SRI - Safety Research Institute</li>
+            <li>IT&RDD - Information Technology & Regulatory Documents Division</li>
+            <li>DRP&E - Division of Radiation Protection & Environment</li>
+            <li>NPSD - Nuclear Projects Safety Division</li>
+            <li>OPSD - Operating Plants Safety Division</li>
+            <li>RASD - Radiation Applications Safety Division</li>
+            <li>OS&ERD - Organisation Support & External Relations Division</li>
+            <li>DRI - Division of Regulatory Inspection</li>
+            <li>NRRC / SRRC / ERRC - Regional Regulatory Centers</li>
+        </ul>
+    </aside>
+    <div class="level chair-level" *ngFor="let chair of chairpersons()">
+        <a class="card person" [routerLink]="['/employee', chair.id]">
+            <div class="photo" [class.placeholder]="!chair.photoUrl"></div>
+            <div class="name">{{ chair.name }}</div>
+            <div class="designation">{{ chair.designation }}</div>
+        </a>
+
+        <div class="connector vertical"></div>
+
+        <div class="level directors">
+            <div class="row no-wrap horizontal-scroll with-horizontal">
+                <ng-container *ngFor="let director of directorsByChair()[chair.id]">
+                    <div class="col">
+                        <a class="card person" [routerLink]="['/employee', director.id]">
+                            <div class="photo" [class.placeholder]="!director.photoUrl"></div>
+                            <div class="name">{{ director.name }}</div>
+                            <div class="designation">{{ director.designation }}</div>
+                        </a>
+                        <div class="connector vertical"></div>
+                        <div class="level heads">
+                            <div class="row no-wrap horizontal-scroll with-horizontal">
+                                <ng-container *ngFor="let head of headsByDirector()[director.id]">
+                                    <div class="col">
+                                        <a class="card person" [routerLink]="['/employee', head.id]">
+                                            <div class="photo" [class.placeholder]="!head.photoUrl"></div>
+                                            <div class="name">{{ head.name }}</div>
+                                            <div class="designation">{{ head.designation }}</div>
+                                        </a>
+                                    </div>
+                                </ng-container>
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
+            </div>
+        </div>
+    </div>
+</div>

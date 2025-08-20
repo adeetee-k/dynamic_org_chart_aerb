@@ -1,0 +1,38 @@
+<div class="subtree-container" *ngIf="root() as node">
+    <div class="breadcrumb">
+        <a routerLink="/">← Back to main org chart</a>
+    </div>
+    <div class="root">
+        <div class="card person">
+            <div class="photo" [class.placeholder]="!node.photoUrl"></div>
+            <div class="name">{{ node.name }}</div>
+            <div class="designation">{{ node.designation }}</div>
+        </div>
+    </div>
+    <div class="connector vertical"></div>
+    <div class="children">
+        <div class="row wrap with-horizontal">
+            <ng-container *ngFor="let child of children()">
+                <div class="col">
+                    <a class="card person" [routerLink]="['/employee', child.id]">
+                        <div class="photo" [class.placeholder]="!child.photoUrl"></div>
+                        <div class="name">{{ child.name }}</div>
+                        <div class="designation">{{ child.designation }}</div>
+                    </a>
+                    <div class="connector vertical"></div>
+                    <div class="grandchildren">
+                        <div class="row wrap with-horizontal">
+                            <ng-container *ngFor="let gc of grandchildrenByChild()[child.id]">
+                                <a class="card person" [routerLink]="['/employee', gc.id]">
+                                    <div class="photo" [class.placeholder]="!gc.photoUrl"></div>
+                                    <div class="name">{{ gc.name }}</div>
+                                    <div class="designation">{{ gc.designation }}</div>
+                                </a>
+                            </ng-container>
+                        </div>
+                    </div>
+                </div>
+            </ng-container>
+        </div>
+    </div>
+</div>
