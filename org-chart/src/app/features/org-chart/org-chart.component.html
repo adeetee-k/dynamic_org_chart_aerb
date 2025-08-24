@@ -17,6 +17,29 @@
             <li>NRRC / SRRC / ERRC - Regional Regulatory Centers</li>
         </ul>
     </aside>
+
+    <!-- CSV Import/Export Controls -->
+    <div class="csv-controls">
+        <button class="csv-toggle" type="button" (click)="toggleCSVImport()">
+            {{ csvImportOpen() ? 'Hide' : 'Import/Export CSV' }}
+        </button>
+        
+        <div class="csv-panel" *ngIf="csvImportOpen()">
+            <div class="csv-section">
+                <h4>Import CSV</h4>
+                <p class="csv-help">Upload a CSV file with employee data. Format: id,name,designation,promotionDate,dateOfBirth,photoUrl,managerId</p>
+                <input type="file" accept=".csv" (change)="onFileSelected($event)" class="file-input">
+                <a href="#" class="csv-template" (click)="exportToCSV()">Download Template</a>
+            </div>
+            
+            <div class="csv-section">
+                <h4>Export Current Data</h4>
+                <p class="csv-help">Download the current organizational chart data as CSV</p>
+                <button class="export-btn" (click)="exportToCSV()">Export to CSV</button>
+            </div>
+        </div>
+    </div>
+
     <div class="level chair-level" *ngFor="let chair of chairpersons()">
         <a class="card person" [routerLink]="['/employee', chair.id]">
             <div class="photo" [class.placeholder]="!chair.photoUrl"></div>

@@ -5,7 +5,134 @@ import { Employee, EmployeeById } from './models/employee.model';
   providedIn: 'root'
 })
 export class OrgDataService {
-    private employees: Employee[] = [
+    private employees: Employee[] = [];
+    private designationRank: Record<string, number> = {
+        Chairperson: 1,
+        Director: 2,
+        Head: 3,
+        CAO: 3,
+        DCA: 3,
+        PA: 11, // PAs are at the bottom of the hierarchy
+        'Section Head': 4,
+        SOF: 5,
+        SOE: 6,
+        SOD: 7,
+        SOC: 8,
+        Manager: 9,
+        Staff: 10
+    };
+
+    private idCounter = 1000;
+
+    constructor() {
+        // Load default data if no CSV is provided
+        this.loadDefaultData();
+    }
+
+    /**
+     * Load data from CSV string
+     * Expected CSV format: id,name,designation,promotionDate,dateOfBirth,photoUrl,managerId
+     */
+    loadFromCSV(csvData: string): void {
+        try {
+            const lines = csvData.trim().split('\n');
+            const headers = lines[0].split(',').map(h => h.trim());
+            
+            // Validate headers
+            const requiredHeaders = ['id', 'name', 'designation'];
+            const missingHeaders = requiredHeaders.filter(h => !headers.includes(h));
+            if (missingHeaders.length > 0) {
+                throw new Error(`Missing required headers: ${missingHeaders.join(', ')}`);
+            }
+
+            // Parse CSV data
+            this.employees = [];
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+                
+                const values = this.parseCSVLine(line);
+                if (values.length >= 3) {
+                    const employee: Employee = {
+                        id: values[headers.indexOf('id')]?.trim() || '',
+                        name: values[headers.indexOf('name')]?.trim() || '',
+                        designation: values[headers.indexOf('designation')]?.trim() || '',
+                        promotionDate: values[headers.indexOf('promotionDate')]?.trim() || new Date().toISOString().split('T')[0],
+                        dateOfBirth: values[headers.indexOf('dateOfBirth')]?.trim() || new Date().toISOString().split('T')[0],
+                        photoUrl: values[headers.indexOf('photoUrl')]?.trim() || '',
+                        managerId: values[headers.indexOf('managerId')]?.trim() || undefined
+                    };
+                    
+                    if (employee.id && employee.name && employee.designation) {
+                        this.employees.push(employee);
+                    }
+                }
+            }
+
+            // Ensure minimum hierarchy exists
+            this.ensureMinimumHierarchy();
+            
+            console.log(`Loaded ${this.employees.length} employees from CSV`);
+        } catch (error) {
+            console.error('Error loading CSV data:', error);
+            // Fallback to default data
+            this.loadDefaultData();
+        }
+    }
+
+    /**
+     * Parse CSV line handling quoted values
+     */
+    private parseCSVLine(line: string): string[] {
+        const result: string[] = [];
+        let current = '';
+        let inQuotes = false;
+        
+        for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+            
+            if (char === '"') {
+                inQuotes = !inQuotes;
+            } else if (char === ',' && !inQuotes) {
+                result.push(current);
+                current = '';
+            } else {
+                current += char;
+            }
+        }
+        
+        result.push(current);
+        return result.map(val => val.replace(/^"|"$/g, '')); // Remove surrounding quotes
+    }
+
+    /**
+     * Export current data to CSV format
+     */
+    exportToCSV(): string {
+        const headers = ['id', 'name', 'designation', 'promotionDate', 'dateOfBirth', 'photoUrl', 'managerId'];
+        const csvLines = [headers.join(',')];
+        
+        this.employees.forEach(employee => {
+            const values = [
+                employee.id,
+                `"${employee.name}"`,
+                employee.designation,
+                employee.promotionDate,
+                employee.dateOfBirth,
+                employee.photoUrl,
+                employee.managerId || ''
+            ];
+            csvLines.push(values.join(','));
+        });
+        
+        return csvLines.join('\n');
+    }
+
+    /**
+     * Load default data (fallback)
+     */
+    private loadDefaultData(): void {
+        this.employees = [
         // Chairperson
         { id: 'e1', name: 'Name1', designation: 'Chairperson', promotionDate: '2015-01-15', dateOfBirth: '1965-03-10', photoUrl: '' },
         // Directors (3)
@@ -28,52 +155,30 @@ export class OrgDataService {
         { id: 'dca44', name: 'Name17', designation: 'DCA', promotionDate: '2020-10-10', dateOfBirth: '1983-11-11', photoUrl: '', managerId: 'e4' },
 
         // Personal Assistants
-        { id: 'pa1', name: 'PA1', designation: 'PA', promotionDate: '2015-02-01', dateOfBirth: '1985-01-15', photoUrl: '', managerId: 'e1' },
-        { id: 'pa2', name: 'PA2', designation: 'PA', promotionDate: '2015-03-01', dateOfBirth: '1986-02-20', photoUrl: '', managerId: 'e1' },
-        { id: 'pa3', name: 'PA3', designation: 'PA', promotionDate: '2016-04-01', dateOfBirth: '1987-03-10', photoUrl: '', managerId: 'e2' },
-        { id: 'pa4', name: 'PA4', designation: 'PA', promotionDate: '2016-05-01', dateOfBirth: '1988-04-05', photoUrl: '', managerId: 'e3' },
-        { id: 'pa5', name: 'PA5', designation: 'PA', promotionDate: '2016-06-01', dateOfBirth: '1989-05-12', photoUrl: '', managerId: 'e4' },
-        { id: 'pa6', name: 'PA6', designation: 'PA', promotionDate: '2016-07-01', dateOfBirth: '1990-06-18', photoUrl: '', managerId: 'h21' },
-        { id: 'pa7', name: 'PA7', designation: 'PA', promotionDate: '2016-08-01', dateOfBirth: '1991-07-25', photoUrl: '', managerId: 'h22' },
-        { id: 'pa8', name: 'PA8', designation: 'PA', promotionDate: '2016-09-01', dateOfBirth: '1992-08-30', photoUrl: '', managerId: 'h23' },
-        { id: 'pa9', name: 'PA9', designation: 'PA', promotionDate: '2016-10-01', dateOfBirth: '1993-09-14', photoUrl: '', managerId: 'h24' },
-        { id: 'pa10', name: 'PA10', designation: 'PA', promotionDate: '2016-11-01', dateOfBirth: '1994-10-22', photoUrl: '', managerId: 'h31' },
-        { id: 'pa11', name: 'PA11', designation: 'PA', promotionDate: '2016-12-01', dateOfBirth: '1995-11-08', photoUrl: '', managerId: 'cao32' },
-        { id: 'pa12', name: 'PA12', designation: 'PA', promotionDate: '2017-01-01', dateOfBirth: '1996-12-03', photoUrl: '', managerId: 'h33' },
-        { id: 'pa13', name: 'PA13', designation: 'PA', promotionDate: '2017-02-01', dateOfBirth: '1997-01-17', photoUrl: '', managerId: 'dca34' },
-        { id: 'pa14', name: 'PA14', designation: 'PA', promotionDate: '2017-03-01', dateOfBirth: '1998-02-28', photoUrl: '', managerId: 'h35' },
-        { id: 'pa15', name: 'PA15', designation: 'PA', promotionDate: '2017-04-01', dateOfBirth: '1999-03-11', photoUrl: '', managerId: 'h41' },
-        { id: 'pa16', name: 'PA16', designation: 'PA', promotionDate: '2017-05-01', dateOfBirth: '2000-04-19', photoUrl: '', managerId: 'h42' },
-        { id: 'pa17', name: 'PA17', designation: 'PA', promotionDate: '2017-06-01', dateOfBirth: '2001-05-26', photoUrl: '', managerId: 'cao43' },
-        { id: 'pa18', name: 'PA18', designation: 'PA', promotionDate: '2017-07-01', dateOfBirth: '2002-06-07', photoUrl: '', managerId: 'dca44' },
-        { id: 'pa19', name: 'PA19', designation: 'PA', promotionDate: '2017-08-01', dateOfBirth: '2003-07-13', photoUrl: '', managerId: 'h21' },
-        { id: 'pa20', name: 'PA20', designation: 'PA', promotionDate: '2017-09-01', dateOfBirth: '2004-08-21', photoUrl: '', managerId: 'h22' },
+            { id: 'pa1', name: 'PA1', designation: 'PA', promotionDate: '2015-02-01', dateOfBirth: '1985-01-15', photoUrl: '', managerId: 'e1' },
+            { id: 'pa2', name: 'PA2', designation: 'PA', promotionDate: '2015-03-01', dateOfBirth: '1986-02-20', photoUrl: '', managerId: 'e1' },
+            { id: 'pa3', name: 'PA3', designation: 'PA', promotionDate: '2016-04-01', dateOfBirth: '1987-03-10', photoUrl: '', managerId: 'e2' },
+            { id: 'pa4', name: 'PA4', designation: 'PA', promotionDate: '2016-05-01', dateOfBirth: '1988-04-05', photoUrl: '', managerId: 'e3' },
+            { id: 'pa5', name: 'PA5', designation: 'PA', promotionDate: '2016-06-01', dateOfBirth: '1989-05-12', photoUrl: '', managerId: 'e4' },
+            { id: 'pa6', name: 'PA6', designation: 'PA', promotionDate: '2016-07-01', dateOfBirth: '1990-06-18', photoUrl: '', managerId: 'h21' },
+            { id: 'pa7', name: 'PA7', designation: 'PA', promotionDate: '2016-08-01', dateOfBirth: '1991-07-25', photoUrl: '', managerId: 'h22' },
+            { id: 'pa8', name: 'PA8', designation: 'PA', promotionDate: '2016-09-01', dateOfBirth: '1992-08-30', photoUrl: '', managerId: 'h23' },
+            { id: 'pa9', name: 'PA9', designation: 'PA', promotionDate: '2016-10-01', dateOfBirth: '1993-09-14', photoUrl: '', managerId: 'h24' },
+            { id: 'pa10', name: 'PA10', designation: 'PA', promotionDate: '2016-11-01', dateOfBirth: '1994-10-22', photoUrl: '', managerId: 'h31' },
+            { id: 'pa11', name: 'PA11', designation: 'PA', promotionDate: '2016-12-01', dateOfBirth: '1995-11-08', photoUrl: '', managerId: 'cao32' },
+            { id: 'pa12', name: 'PA12', designation: 'PA', promotionDate: '2017-01-01', dateOfBirth: '1996-12-03', photoUrl: '', managerId: 'h33' },
+            { id: 'pa13', name: 'PA13', designation: 'PA', promotionDate: '2017-02-01', dateOfBirth: '1997-01-17', photoUrl: '', managerId: 'dca34' },
+            { id: 'pa14', name: 'PA14', designation: 'PA', promotionDate: '2017-03-01', dateOfBirth: '1998-02-28', photoUrl: '', managerId: 'h35' },
+            { id: 'pa15', name: 'PA15', designation: 'PA', promotionDate: '2017-04-01', dateOfBirth: '1999-03-11', photoUrl: '', managerId: 'h41' },
+            { id: 'pa16', name: 'PA16', designation: 'PA', promotionDate: '2017-05-01', dateOfBirth: '2000-04-19', photoUrl: '', managerId: 'h42' },
+            { id: 'pa17', name: 'PA17', designation: 'PA', promotionDate: '2017-06-01', dateOfBirth: '2001-05-26', photoUrl: '', managerId: 'cao43' },
+            { id: 'pa18', name: 'PA18', designation: 'PA', promotionDate: '2017-07-01', dateOfBirth: '2002-06-07', photoUrl: '', managerId: 'dca44' },
+            { id: 'pa19', name: 'PA19', designation: 'PA', promotionDate: '2017-08-01', dateOfBirth: '2003-07-13', photoUrl: '', managerId: 'h21' },
+            { id: 'pa20', name: 'PA20', designation: 'PA', promotionDate: '2017-09-01', dateOfBirth: '2004-08-21', photoUrl: '', managerId: 'h22' },
+        ];
 
-        // Deeper levels will be auto-completed below
-    ];
-
-    private designationRank: Record<string, number> = {
-        Chairperson: 1,
-        Director: 2,
-        Head: 3,
-        CAO: 3,
-        DCA: 3,
-        PA: 11, // PAs are at the bottom of the hierarchy
-        'Section Head': 4,
-        SOF: 5,
-        SOE: 6,
-        SOD: 7,
-        SOC: 8,
-        Manager: 9,
-        Staff: 10
-    };
-
-    private idCounter = 1000;
-
-    constructor() {
         // Ensure minimum hierarchical children exist for all level-3 roles
         this.ensureMinimumHierarchy();
-        // PAs are now properly assigned via managerId in the data structure
     }
 
     getAll(): Employee[] {

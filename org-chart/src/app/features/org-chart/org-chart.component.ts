@@ -18,8 +18,13 @@ export class OrgChartComponent implements OnInit {
     directorsByChair = signal<Record<string, Employee[]>>({});
     headsByDirector = signal<Record<string, Employee[]>>({});
     legendOpen = signal<boolean>(false);
+    csvImportOpen = signal<boolean>(false);
 
     ngOnInit(): void {
+        this.loadOrgData();
+    }
+
+    private loadOrgData(): void {
         const top = this.orgService.getTop();
         this.chairpersons.set(top);
         const directorsByChair: Record<string, Employee[]> = {};
@@ -37,5 +42,34 @@ export class OrgChartComponent implements OnInit {
 
     toggleLegend(): void {
         this.legendOpen.update(v => !v);
+    }
+
+    toggleCSVImport(): void {
+        this.csvImportOpen.update(v => !v);
+    }
+
+    onFileSelected(event: any): void {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e: any) => {
+                const csvData = e.target.result;
+                this.orgService.loadFromCSV(csvData);
+                this.loadOrgData(); // Reload the org chart
+                this.csvImportOpen.set(false);
+            };
+            reader.readAsText(file);
+        }
+    }
+
+    exportToCSV(): void {
+        const csvData = this.orgService.exportToCSV();
+        const blob = new Blob([csvData], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'org-chart-data.csv';
+        a.click();
+        window.URL.revokeObjectURL(url);
     }
 }
