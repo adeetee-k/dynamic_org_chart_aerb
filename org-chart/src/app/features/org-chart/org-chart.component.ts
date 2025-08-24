@@ -38,6 +38,4 @@ export class OrgChartComponent implements OnInit {
     toggleLegend(): void {
         this.legendOpen.update(v => !v);
     }
-
-    
 }

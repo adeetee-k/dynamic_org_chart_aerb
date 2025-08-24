@@ -27,6 +27,28 @@ export class OrgDataService {
         { id: 'cao43', name: 'Name16', designation: 'CAO', promotionDate: '2020-09-01', dateOfBirth: '1982-10-10', photoUrl: '', managerId: 'e4' },
         { id: 'dca44', name: 'Name17', designation: 'DCA', promotionDate: '2020-10-10', dateOfBirth: '1983-11-11', photoUrl: '', managerId: 'e4' },
 
+        // Personal Assistants
+        { id: 'pa1', name: 'PA1', designation: 'PA', promotionDate: '2015-02-01', dateOfBirth: '1985-01-15', photoUrl: '', managerId: 'e1' },
+        { id: 'pa2', name: 'PA2', designation: 'PA', promotionDate: '2015-03-01', dateOfBirth: '1986-02-20', photoUrl: '', managerId: 'e1' },
+        { id: 'pa3', name: 'PA3', designation: 'PA', promotionDate: '2016-04-01', dateOfBirth: '1987-03-10', photoUrl: '', managerId: 'e2' },
+        { id: 'pa4', name: 'PA4', designation: 'PA', promotionDate: '2016-05-01', dateOfBirth: '1988-04-05', photoUrl: '', managerId: 'e3' },
+        { id: 'pa5', name: 'PA5', designation: 'PA', promotionDate: '2016-06-01', dateOfBirth: '1989-05-12', photoUrl: '', managerId: 'e4' },
+        { id: 'pa6', name: 'PA6', designation: 'PA', promotionDate: '2016-07-01', dateOfBirth: '1990-06-18', photoUrl: '', managerId: 'h21' },
+        { id: 'pa7', name: 'PA7', designation: 'PA', promotionDate: '2016-08-01', dateOfBirth: '1991-07-25', photoUrl: '', managerId: 'h22' },
+        { id: 'pa8', name: 'PA8', designation: 'PA', promotionDate: '2016-09-01', dateOfBirth: '1992-08-30', photoUrl: '', managerId: 'h23' },
+        { id: 'pa9', name: 'PA9', designation: 'PA', promotionDate: '2016-10-01', dateOfBirth: '1993-09-14', photoUrl: '', managerId: 'h24' },
+        { id: 'pa10', name: 'PA10', designation: 'PA', promotionDate: '2016-11-01', dateOfBirth: '1994-10-22', photoUrl: '', managerId: 'h31' },
+        { id: 'pa11', name: 'PA11', designation: 'PA', promotionDate: '2016-12-01', dateOfBirth: '1995-11-08', photoUrl: '', managerId: 'cao32' },
+        { id: 'pa12', name: 'PA12', designation: 'PA', promotionDate: '2017-01-01', dateOfBirth: '1996-12-03', photoUrl: '', managerId: 'h33' },
+        { id: 'pa13', name: 'PA13', designation: 'PA', promotionDate: '2017-02-01', dateOfBirth: '1997-01-17', photoUrl: '', managerId: 'dca34' },
+        { id: 'pa14', name: 'PA14', designation: 'PA', promotionDate: '2017-03-01', dateOfBirth: '1998-02-28', photoUrl: '', managerId: 'h35' },
+        { id: 'pa15', name: 'PA15', designation: 'PA', promotionDate: '2017-04-01', dateOfBirth: '1999-03-11', photoUrl: '', managerId: 'h41' },
+        { id: 'pa16', name: 'PA16', designation: 'PA', promotionDate: '2017-05-01', dateOfBirth: '2000-04-19', photoUrl: '', managerId: 'h42' },
+        { id: 'pa17', name: 'PA17', designation: 'PA', promotionDate: '2017-06-01', dateOfBirth: '2001-05-26', photoUrl: '', managerId: 'cao43' },
+        { id: 'pa18', name: 'PA18', designation: 'PA', promotionDate: '2017-07-01', dateOfBirth: '2002-06-07', photoUrl: '', managerId: 'dca44' },
+        { id: 'pa19', name: 'PA19', designation: 'PA', promotionDate: '2017-08-01', dateOfBirth: '2003-07-13', photoUrl: '', managerId: 'h21' },
+        { id: 'pa20', name: 'PA20', designation: 'PA', promotionDate: '2017-09-01', dateOfBirth: '2004-08-21', photoUrl: '', managerId: 'h22' },
+
         // Deeper levels will be auto-completed below
     ];
 
@@ -36,6 +58,7 @@ export class OrgDataService {
         Head: 3,
         CAO: 3,
         DCA: 3,
+        PA: 11, // PAs are at the bottom of the hierarchy
         'Section Head': 4,
         SOF: 5,
         SOE: 6,
@@ -50,6 +73,7 @@ export class OrgDataService {
     constructor() {
         // Ensure minimum hierarchical children exist for all level-3 roles
         this.ensureMinimumHierarchy();
+        // PAs are now properly assigned via managerId in the data structure
     }
 
     getAll(): Employee[] {
@@ -61,12 +85,17 @@ export class OrgDataService {
     }
 
     getDirectReports(managerId: string): Employee[] {
-        return this.sortEmployees(this.employees.filter(e => e.managerId === managerId));
+        return this.sortEmployees(this.employees.filter(e => e.managerId === managerId && e.designation !== 'PA'));
     }
 
     getTop(): Employee[] {
         // No managerId => top of org (usually one chairperson)
         return this.sortEmployees(this.employees.filter(e => !e.managerId));
+    }
+
+    getPersonalAssistants(employeeId: string): Employee[] {
+        // Find all PAs that report to this employee
+        return this.employees.filter(e => e.managerId === employeeId && e.designation === 'PA');
     }
 
     getDesignationRank(designation: string): number {
@@ -139,5 +168,11 @@ export class OrgDataService {
             photoUrl: '',
             managerId
         };
+    }
+
+    private assignPersonalAssistants(): void {
+        // PAs are now properly assigned via managerId in the data structure
+        // This method is kept for backward compatibility but no longer needed
+        // The getPersonalAssistants method will work with the managerId relationships
     }
 }

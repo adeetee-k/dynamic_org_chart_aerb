@@ -18,6 +18,7 @@ export class SubtreeComponent implements OnInit {
     root = signal<Employee | undefined>(undefined);
     children = signal<Employee[]>([]);
     grandchildrenByChild = signal<Record<string, Employee[]>>({});
+    showOnlyDirectors = signal<boolean>(false);
 
     ngOnInit(): void {
         // React to param changes when navigating to the same component with a new :id
@@ -35,12 +36,26 @@ export class SubtreeComponent implements OnInit {
             this.grandchildrenByChild.set({});
             return;
         }
+
+        // Check if this is a chairperson - if so, show only directors
+        this.showOnlyDirectors.set(employee.designation === 'Chairperson');
+
         const kids = this.orgService.getDirectReports(employee.id);
         this.children.set(kids);
-        const map: Record<string, Employee[]> = {};
-        kids.forEach(k => {
-            map[k.id] = this.orgService.getDirectReports(k.id);
-        });
-        this.grandchildrenByChild.set(map);
+        
+        // Only load grandchildren if not showing only directors
+        if (!this.showOnlyDirectors()) {
+            const map: Record<string, Employee[]> = {};
+            kids.forEach(k => {
+                map[k.id] = this.orgService.getDirectReports(k.id);
+            });
+            this.grandchildrenByChild.set(map);
+        } else {
+            this.grandchildrenByChild.set({});
+        }
+    }
+
+    getPersonalAssistants(employeeId: string): Employee[] {
+        return this.orgService.getPersonalAssistants(employeeId);
     }
 }

@@ -6,6 +6,7 @@ export interface Employee {
     dateOfBirth: string; // ISO date for secondary sort
     photoUrl?: string; // can be empty string
     managerId?: string; // undefined for top-level (chairperson)
+    personalAssistants?: Employee[]; // PAs for this employee
 }
 
 export type EmployeeById = { [employeeId: string]: Employee };

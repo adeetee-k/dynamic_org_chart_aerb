@@ -3,10 +3,20 @@
         <a routerLink="/">← Back to main org chart</a>
     </div>
     <div class="root">
-        <div class="card person">
-            <div class="photo" [class.placeholder]="!node.photoUrl"></div>
-            <div class="name">{{ node.name }}</div>
-            <div class="designation">{{ node.designation }}</div>
+        <div class="employee-with-pas">
+            <div class="card person">
+                <div class="photo" [class.placeholder]="!node.photoUrl"></div>
+                <div class="name">{{ node.name }}</div>
+                <div class="designation">{{ node.designation }}</div>
+            </div>
+            <!-- PAs for Root Employee only -->
+            <div class="pas-container" *ngIf="getPersonalAssistants(node.id).length > 0">
+                <div class="pa-card" *ngFor="let pa of getPersonalAssistants(node.id)">
+                    <div class="pa-photo" [class.placeholder]="!pa.photoUrl"></div>
+                    <div class="pa-name">{{ pa.name }}</div>
+                    <div class="pa-designation">{{ pa.designation }}</div>
+                </div>
+            </div>
         </div>
     </div>
     <div class="connector vertical"></div>
@@ -19,8 +29,8 @@
                         <div class="name">{{ child.name }}</div>
                         <div class="designation">{{ child.designation }}</div>
                     </a>
-                    <div class="connector vertical"></div>
-                    <div class="grandchildren">
+                    <div class="connector vertical" *ngIf="!showOnlyDirectors()"></div>
+                    <div class="grandchildren" *ngIf="!showOnlyDirectors()">
                         <div class="row wrap with-horizontal">
                             <ng-container *ngFor="let gc of grandchildrenByChild()[child.id]">
                                 <a class="card person" [routerLink]="['/employee', gc.id]">
