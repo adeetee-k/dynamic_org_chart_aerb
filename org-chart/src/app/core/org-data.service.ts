@@ -29,6 +29,8 @@ export class OrgDataService {
         this.loadDefaultData();
     }
 
+    // Removed auto CSV loading to restore default behavior
+
     /**
      * Load data from CSV string
      * Expected CSV format: id,name,designation,promotionDate,dateOfBirth,photoUrl,managerId
@@ -71,6 +73,8 @@ export class OrgDataService {
 
             // Ensure minimum hierarchy exists
             this.ensureMinimumHierarchy();
+            // Ensure every employee has a photo placeholder if none provided
+            this.ensurePhotoPlaceholders();
             
             console.log(`Loaded ${this.employees.length} employees from CSV`);
         } catch (error) {
@@ -78,6 +82,16 @@ export class OrgDataService {
             // Fallback to default data
             this.loadDefaultData();
         }
+    }
+
+    /**
+     * Ensure all employees have a photoUrl; if missing, assign a unique placeholder
+     */
+    private ensurePhotoPlaceholders(): void {
+        this.employees = this.employees.map(e => ({
+            ...e,
+            photoUrl: e.photoUrl && e.photoUrl.trim() ? e.photoUrl : `https://picsum.photos/seed/${e.id}/200`
+        }));
     }
 
     /**
@@ -179,6 +193,8 @@ export class OrgDataService {
 
         // Ensure minimum hierarchical children exist for all level-3 roles
         this.ensureMinimumHierarchy();
+        // Ensure placeholders for any missing photos
+        this.ensurePhotoPlaceholders();
     }
 
     getAll(): Employee[] {
@@ -270,7 +286,7 @@ export class OrgDataService {
             designation,
             promotionDate: `${promoYear.toString().padStart(4, '0')}-${promoMonth.toString().padStart(2, '0')}-${promoDay.toString().padStart(2, '0')}`,
             dateOfBirth: `${year.toString().padStart(4, '0')}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`,
-            photoUrl: '',
+            photoUrl: `https://picsum.photos/seed/${id}/200`,
             managerId
         };
     }

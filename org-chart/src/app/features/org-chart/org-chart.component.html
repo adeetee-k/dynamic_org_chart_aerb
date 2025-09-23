@@ -42,7 +42,7 @@
 
     <div class="level chair-level" *ngFor="let chair of chairpersons()">
         <a class="card person" [routerLink]="['/employee', chair.id]">
-            <div class="photo" [class.placeholder]="!chair.photoUrl"></div>
+            <div class="photo" [class.placeholder]="!chair.photoUrl" [style.background-image]="chair.photoUrl ? ('url(' + (chair.photoUrl.startsWith('http') ? chair.photoUrl : 'assets/photos/' + chair.photoUrl) + ')') : ''"></div>
             <div class="name">{{ chair.name }}</div>
             <div class="designation">{{ chair.designation }}</div>
         </a>
@@ -54,7 +54,7 @@
                 <ng-container *ngFor="let director of directorsByChair()[chair.id]">
                     <div class="col">
                         <a class="card person" [routerLink]="['/employee', director.id]">
-                            <div class="photo" [class.placeholder]="!director.photoUrl"></div>
+                            <div class="photo" [class.placeholder]="!director.photoUrl" [style.background-image]="director.photoUrl ? ('url(' + (director.photoUrl.startsWith('http') ? director.photoUrl : 'assets/photos/' + director.photoUrl) + ')') : ''"></div>
                             <div class="name">{{ director.name }}</div>
                             <div class="designation">{{ director.designation }}</div>
                         </a>
@@ -64,7 +64,7 @@
                                 <ng-container *ngFor="let head of headsByDirector()[director.id]">
                                     <div class="col">
                                         <a class="card person" [routerLink]="['/employee', head.id]">
-                                            <div class="photo" [class.placeholder]="!head.photoUrl"></div>
+                                            <div class="photo" [class.placeholder]="!head.photoUrl" [style.background-image]="head.photoUrl ? ('url(' + (head.photoUrl.startsWith('http') ? head.photoUrl : 'assets/photos/' + head.photoUrl) + ')') : ''"></div>
                                             <div class="name">{{ head.name }}</div>
                                             <div class="designation">{{ head.designation }}</div>
                                         </a>
