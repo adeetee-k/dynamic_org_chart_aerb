@@ -1,0 +1,266 @@
+.subtree-container { 
+    padding: 1rem; 
+    background-color: #e6f3ff; /* Light blue background */
+    min-height: 100vh;
+}
+
+.breadcrumb { margin-bottom: 1rem; }
+.root { display: flex; justify-content: center; }
+.children { margin-top: 1rem; }
+
+.row.wrap { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 1rem; 
+    justify-content: center; 
+}
+
+/* Fixed connector system */
+.row.wrap.with-horizontal { 
+    position: relative; 
+    padding-top: 20px; 
+}
+
+.row.wrap.with-horizontal::before { 
+    content: ''; 
+    position: absolute; 
+    top: 0; 
+    left: 10%; 
+    right: 10%; 
+    height: 2px; 
+    background: #cbd5e1; 
+}
+
+.row.wrap.with-horizontal .card.person { 
+    position: relative; 
+}
+
+.row.wrap.with-horizontal .card.person::before { 
+    content: ''; 
+    position: absolute; 
+    top: -20px; 
+    left: 50%; 
+    transform: translateX(-50%); 
+    width: 2px; 
+    height: 20px; 
+    background: #cbd5e1; 
+}
+
+.card.person { 
+    display: grid; 
+    grid-template-rows: 72px auto auto; 
+    width: 200px; 
+    padding: .75rem; 
+    border-radius: .5rem; 
+    border: 1px solid #e2e8f0; 
+    background: #fff; 
+    color: #111827; 
+    text-decoration: none; 
+}
+
+.photo { 
+    width: 100%; 
+    height: 72px; 
+    border-radius: .375rem; 
+    background-size: cover; 
+    background-position: center; 
+}
+
+.photo.placeholder { 
+    background: repeating-linear-gradient(45deg, #f3f4f6, #f3f4f6 10px, #e5e7eb 10px, #e5e7eb 20px); 
+}
+
+.name { 
+    font-weight: 600; 
+    margin-top: .5rem; 
+}
+
+.designation { 
+    font-size: .875rem; 
+    color: #6b7280; 
+}
+
+.connector.vertical { 
+    width: 2px; 
+    height: 24px; 
+    background: #cbd5e1; 
+    margin: 0.5rem auto; 
+    position: relative;
+}
+
+/* Ensure proper spacing between levels */
+.children {
+    margin-top: 1rem;
+}
+
+.grandchildren {
+    margin-top: 1rem;
+}
+
+/* Employee with PAs container */
+.employee-with-pas {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+/* PA Container */
+.pas-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-left: 0.5rem;
+    position: relative;
+}
+
+/* Connecting line from employee to PA container */
+.pas-container::before {
+    content: '';
+    position: absolute;
+    left: -0.5rem;
+    top: 50%;
+    width: 0.5rem;
+    height: 2px;
+    background: #cbd5e1;
+}
+
+/* PA Card */
+.pa-card {
+    display: grid;
+    grid-template-rows: 40px auto auto;
+    width: 100px;
+    padding: 0.25rem;
+    border-radius: 0.375rem;
+    border: 1px solid #d1d5db;
+    background: #f9fafb;
+    color: #374151;
+    font-size: 0.75rem;
+    transform: skew(-10deg);
+    box-shadow: 0 1px 2px rgba(0,0,0,.05);
+    position: relative;
+}
+
+.pa-photo {
+    width: 100%;
+    height: 40px;
+    border-radius: 0.25rem;
+    background-size: cover;
+    background-position: center;
+    transform: skew(10deg);
+}
+
+.pa-photo.placeholder {
+    background: repeating-linear-gradient(45deg, #f3f4f6, #f3f4f6 8px, #e5e7eb 8px, #e5e7eb 16px);
+}
+
+.pa-name {
+    font-weight: 500;
+    margin-top: 0.25rem;
+    text-align: center;
+    transform: skew(10deg);
+    font-size: 0.7rem;
+}
+
+.pa-designation {
+    font-size: 0.65rem;
+    color: #6b7280;
+    text-align: center;
+    transform: skew(10deg);
+}
+
+/* Head detail view styles */
+.head-detail-view {
+    margin-top: 2rem;
+    padding: 0; /* remove white box spacing */
+    background: transparent; /* sit on blue background */
+    border-radius: 0;
+    border: none;
+}
+
+.head-detail-view h4 {
+    margin: 0 0 1rem 0;
+    color: #1f2937;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.head-pas {
+    margin-bottom: 2rem;
+}
+
+.pa-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 1rem;
+}
+
+.section-heads {
+    margin-bottom: 2rem;
+}
+
+.deeper-hierarchy {
+    margin-bottom: 1rem;
+}
+
+.descendant-line {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 0.75rem;
+    padding: 0.75rem;
+    border: 1px dashed #cbd5e1;
+    border-radius: 0.375rem;
+    background: #ffffff;
+}
+
+.desc-item {
+    font-size: 0.75rem;
+    color: #374151;
+    background: #eef2f7;
+    border: 1px solid #e2e8f0;
+    border-radius: 9999px;
+    padding: 0.125rem 0.5rem;
+}
+
+/* Vertical hierarchical list under Section Heads */
+.vertical-hierarchy { margin-bottom: 1rem; }
+.vertical-list-container { 
+    margin-top: 0.5rem; 
+    position: relative; 
+    margin-left: 0; /* align with left edge of Section Head card */
+}
+.vertical-list {
+    list-style: none;
+    padding: 0 0 0 12px; /* space between line and text */
+    margin: 0;
+    position: relative;
+}
+.vertical-item {
+    display: flex;
+    align-items: baseline;
+    gap: 0.375rem;
+    padding: 0; /* no extra spacing between entries */
+    position: relative; /* for connector */
+}
+.vertical-list::before {
+    content: '';
+    position: absolute;
+    left: 0; /* align with start (left edge) of Section Head card */
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #cbd5e1;
+}
+.vertical-item::before {
+    content: '';
+    position: absolute;
+    left: -12px; /* from main vertical line to the text start */
+    top: 0.85em; /* roughly center with text line */
+    width: 12px;
+    height: 2px;
+    background: #cbd5e1;
+}
+.emp-name { font-weight: 600; color: #111827; }
+.emp-sep { color: #9ca3af; }
+.emp-desig { color: #374151; font-size: 0.875rem; }
+
