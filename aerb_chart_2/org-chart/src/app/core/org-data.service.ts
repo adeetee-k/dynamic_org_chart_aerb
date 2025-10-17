@@ -1,87 +1,18 @@
 import { Injectable } from '@angular/core';
 import { Employee, EmployeeById } from './models/employee.model';
+import { getDesignationRank } from './config/designation-rank.config';
 
 @Injectable({
   providedIn: 'root'
 })
 export class OrgDataService {
     private employees: Employee[] = [];
-    private designationRank: Record<string, number> = {
-        Chairperson: 1,
-        Director: 2,
-        Head: 3,
-        CAO: 3,
-        DCA: 3,
-        PA: 11, // PAs are at the bottom of the hierarchy
-        'Section Head': 4,
-        SOF: 5,
-        SOE: 6,
-        SOD: 7,
-        SOC: 8,
-        Manager: 9,
-        Staff: 10
-    };
 
     private idCounter = 1000;
 
     constructor() {
-        // Load default data if no CSV is provided
+        // Load default data
         this.loadDefaultData();
-    }
-
-    // Removed auto CSV loading to restore default behavior
-
-    /**
-     * Load data from CSV string
-     * Expected CSV format: id,name,designation,promotionDate,dateOfBirth,photoUrl,managerId
-     */
-    loadFromCSV(csvData: string): void {
-        try {
-            const lines = csvData.trim().split('\n');
-            const headers = lines[0].split(',').map(h => h.trim());
-            
-            // Validate headers
-            const requiredHeaders = ['id', 'name', 'designation'];
-            const missingHeaders = requiredHeaders.filter(h => !headers.includes(h));
-            if (missingHeaders.length > 0) {
-                throw new Error(`Missing required headers: ${missingHeaders.join(', ')}`);
-            }
-
-            // Parse CSV data
-            this.employees = [];
-            for (let i = 1; i < lines.length; i++) {
-                const line = lines[i].trim();
-                if (!line) continue;
-                
-                const values = this.parseCSVLine(line);
-                if (values.length >= 3) {
-                    const employee: Employee = {
-                        id: values[headers.indexOf('id')]?.trim() || '',
-                        name: values[headers.indexOf('name')]?.trim() || '',
-                        designation: values[headers.indexOf('designation')]?.trim() || '',
-                        promotionDate: values[headers.indexOf('promotionDate')]?.trim() || new Date().toISOString().split('T')[0],
-                        dateOfBirth: values[headers.indexOf('dateOfBirth')]?.trim() || new Date().toISOString().split('T')[0],
-                        photoUrl: values[headers.indexOf('photoUrl')]?.trim() || '',
-                        managerId: values[headers.indexOf('managerId')]?.trim() || undefined
-                    };
-                    
-                    if (employee.id && employee.name && employee.designation) {
-                        this.employees.push(employee);
-                    }
-                }
-            }
-
-            // Ensure minimum hierarchy exists
-            this.ensureMinimumHierarchy();
-            // Ensure every employee has a photo placeholder if none provided
-            this.ensurePhotoPlaceholders();
-            
-            console.log(`Loaded ${this.employees.length} employees from CSV`);
-        } catch (error) {
-            console.error('Error loading CSV data:', error);
-            // Fallback to default data
-            this.loadDefaultData();
-        }
     }
 
     /**
@@ -94,53 +25,6 @@ export class OrgDataService {
         }));
     }
 
-    /**
-     * Parse CSV line handling quoted values
-     */
-    private parseCSVLine(line: string): string[] {
-        const result: string[] = [];
-        let current = '';
-        let inQuotes = false;
-        
-        for (let i = 0; i < line.length; i++) {
-            const char = line[i];
-            
-            if (char === '"') {
-                inQuotes = !inQuotes;
-            } else if (char === ',' && !inQuotes) {
-                result.push(current);
-                current = '';
-            } else {
-                current += char;
-            }
-        }
-        
-        result.push(current);
-        return result.map(val => val.replace(/^"|"$/g, '')); // Remove surrounding quotes
-    }
-
-    /**
-     * Export current data to CSV format
-     */
-    exportToCSV(): string {
-        const headers = ['id', 'name', 'designation', 'promotionDate', 'dateOfBirth', 'photoUrl', 'managerId'];
-        const csvLines = [headers.join(',')];
-        
-        this.employees.forEach(employee => {
-            const values = [
-                employee.id,
-                `"${employee.name}"`,
-                employee.designation,
-                employee.promotionDate,
-                employee.dateOfBirth,
-                employee.photoUrl,
-                employee.managerId || ''
-            ];
-            csvLines.push(values.join(','));
-        });
-        
-        return csvLines.join('\n');
-    }
 
     /**
      * Load default data (fallback)
@@ -242,7 +126,7 @@ export class OrgDataService {
     }
 
     getDesignationRank(designation: string): number {
-        return this.designationRank[designation] ?? Number.MAX_SAFE_INTEGER;
+        return getDesignationRank(designation);
     }
 
     sortEmployees(list: Employee[]): Employee[] {
